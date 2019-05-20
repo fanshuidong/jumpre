@@ -112,7 +112,8 @@ public class Player {
 
 	public void send(Message message) {
 		try {
-			this.session.getBasicRemote().sendText(gson.toJson(message));
+			if(session.isOpen())
+				this.session.getBasicRemote().sendText(gson.toJson(message));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

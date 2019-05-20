@@ -156,7 +156,8 @@ public class WebScoketJumpre {
 
 	public static void sendMessage(Message message,Session session) {
 		try {
-			session.getBasicRemote().sendText(gson.toJson(message));
+			if(session.isOpen())
+				session.getBasicRemote().sendText(gson.toJson(message));
 		} catch (Exception e) {
 			logger.info("发送消息失败 ");
 			e.printStackTrace();

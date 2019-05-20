@@ -11,12 +11,15 @@ import org.gatlin.jumpre.websocket.msg.FinishMsg;
 import org.gatlin.jumpre.websocket.msg.MatchMsg;
 import org.gatlin.jumpre.websocket.msg.ScopeMsg;
 import org.gatlin.jumpre.websocket.msg.StartMsg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
 public class Room {
 
 	private static Gson gson = new Gson();
+	private static Logger logger = LoggerFactory.getLogger(Room.class);
 	
 	private Player player1;
 	private Player player2;
@@ -72,7 +75,7 @@ public class Room {
 		}
 	}
 	
-	//比赛正常
+	//比赛时间到服务器发起正常结束
 	private void finish() {
 		if(this.state == RoomState.matching) {
 			this.state = RoomState.finish;
@@ -80,6 +83,7 @@ public class Room {
 			player2.send(new FinishMsg(player2.getScope(),player2.getScope()>player1.getScope()?1:player2.getScope() < player1.getScope()?0:2));
 			player1.close();
 			player2.close();
+			logger.info("玩家"+player1.getUserId()+" 与 "+player2.getUserId()+"比赛结束");
 			//调用对方奖励结算接口
 		}
 	}
@@ -95,6 +99,7 @@ public class Room {
 			player.getRival().send(new FinishMsg(player.getRival().getScope(),1));
 			player1.close();
 			player2.close();
+			logger.info("玩家"+player1.getUserId()+" 与 "+player2.getUserId()+"比赛结束");
 			//调用对方奖励结算接口
 		}
 	}
