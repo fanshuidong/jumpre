@@ -7,9 +7,11 @@ public enum MsgState {
 	match(3, "匹配成功的两玩家"), 
 	ready(4, "玩家就绪"), 
 	start(5, "比赛开始"), 
-	finish(6, "比赛结束"),
+	finish(6, "服务端发起比赛结束,客户端发起连接断开"),
 	recon(7, "重连进来之后发送比赛双方的数据"),
-	exception(8, "异常退出,游戏结束");
+	quit(8, "玩家主动退出,游戏结束"),
+	clear(10, "清空连胜"),
+	cancel(11, "比赛开始前有玩家退出");
 
 	private int mark;
 	private String desc;

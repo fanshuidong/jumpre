@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 public class SpringBoot {
 
 	public static void main(String[] args) {
-		System.setProperty("spring.config.location", "classpath:/conf/spring.properties");
+		System.setProperty("spring.config.location", "classpath:/config/spring.properties");
 		SpringApplication.run(SpringBoot.class, args);
 	}
 }

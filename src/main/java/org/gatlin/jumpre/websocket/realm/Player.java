@@ -1,20 +1,27 @@
 package org.gatlin.jumpre.websocket.realm;
 
 import java.io.IOException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.websocket.Session;
 
+import org.gatlin.jumpre.util.ExcutorUtil;
 import org.gatlin.jumpre.websocket.WebScoketJumpre;
+import org.gatlin.jumpre.websocket.menu.LoseReason;
+import org.gatlin.jumpre.websocket.msg.CancelMsg;
 import org.gatlin.jumpre.websocket.msg.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
 public class Player {
 	
+	private static Logger logger = LoggerFactory.getLogger(Player.class);
 	private static Gson gson = new Gson();
+	
+	private ScheduledFuture<?> pingTask;
 
 	public Player(Session session, String userId) {
 		this.session = session;
@@ -25,12 +32,12 @@ public class Player {
 	
 	public void init() {//一般用于重连
 		pushTime = System.currentTimeMillis() / 1000;
+		startPing();
 	}
 	
 	private Session session;
 	private String userId;
 	private long pushTime;// 最近一次接收到包的时间
-	private ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
 	private int dif = 0;// 每次执行定时任务时间与pushTime的差值
 	private int scope = 0;
 	private boolean isMatch;
@@ -128,7 +135,7 @@ public class Player {
 		try {
 			WebScoketJumpre.players.remove(userId);
 			this.session.close();
-			this.service.shutdown();
+			this.pingTask.cancel(false);
 			this.room = null;
 			this.matchUserId=null;
 			this.isMatch = false;
@@ -139,20 +146,52 @@ public class Player {
 	}
 	
 	public void closePing() {
-		this.service.shutdown();
+		this.pingTask.cancel(false);
+	}
+	
+	public Player player() {
+		return this;
 	}
 	
 	public void startPing() {
-		service.scheduleAtFixedRate(new Runnable() {
+		pingTask = ExcutorUtil.excuter.scheduleAtFixedRate(new Runnable() {
 			@Override
 			public void run() {
 				dif = (int) (System.currentTimeMillis() / 1000 - pushTime);
-				if ((dif) > 11) {
-//					WebScoketJumpre.quit(userId);
-//					close();
+				if (dif > 11) {
+//					timeOut();
 				}
 			}
 		}, 10, 10, TimeUnit.SECONDS);
+	}
+	
+	//心跳超时处理
+	public synchronized void timeOut() {
+		if(room != null) {
+			switch (room.getState()) {
+			case ready://准备阶段 待处理
+				Player rival = getRival();
+				if(rival != null) {
+					rival.send(new CancelMsg());
+				}
+				close();
+				break;
+			case finish://比赛结束s
+				close();
+				break;
+			case run://比赛阶段判负
+				room.finish_(player(),LoseReason.timeOut);
+				break;
+			default:
+				WebScoketJumpre.succession.remove(userId);
+				close();
+				break;
+			}
+		}else {
+			GameRunner.INSTANCE.remove(userId);
+			close();
+		}
+		logger.info("用户 {} 长时间未操作断开连接",userId);
 	}
 
 }

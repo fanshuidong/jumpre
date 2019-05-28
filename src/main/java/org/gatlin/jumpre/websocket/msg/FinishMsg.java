@@ -11,14 +11,22 @@ import org.gatlin.jumpre.websocket.menu.MsgState;
 
 public class FinishMsg extends Message {
 
-	public FinishMsg(int scope,int win) {
+	public FinishMsg(int scope, int win) {
 		super(MsgState.finish);
 		this.scope = scope;
-		this.win = win;//1赢0输2平局
+		this.win = win;// 1赢0输2平局
+	}
+	
+	public FinishMsg(int scope, int win,int suc) {
+		super(MsgState.finish);
+		this.scope = scope;
+		this.win = win;// 1赢0输2平局
+		this.suc = suc;
 	}
 
 	private int scope;
 	private int win;// 谁赢了
+	private int suc;// 连胜数量
 
 	public int getScope() {
 		return scope;
@@ -34,6 +42,14 @@ public class FinishMsg extends Message {
 
 	public void setWin(int win) {
 		this.win = win;
+	}
+
+	public int getSuc() {
+		return suc;
+	}
+
+	public void setSuc(int suc) {
+		this.suc = suc;
 	}
 
 }

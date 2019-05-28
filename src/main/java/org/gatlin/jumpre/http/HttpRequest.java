@@ -41,8 +41,8 @@ public abstract class HttpRequest<RESPONSE extends HttpResponse, REQUEST extends
 		Type superType = getClass().getGenericSuperclass();
 		Type[] generics = ((ParameterizedType) superType).getActualTypeArguments();
 		this.clazz = (Class<RESPONSE>) generics[0];
-//		this.httpService = SpringContextUtil.getBean("httpService", HttpService.class);
-		this.httpService = new HttpService();
+		this.httpService = SpringContextUtil.getBean("httpService", HttpService.class);
+//		this.httpService = new HttpService();
 		httpService.init();
 	}
 
@@ -51,8 +51,8 @@ public abstract class HttpRequest<RESPONSE extends HttpResponse, REQUEST extends
 		Type superType = getClass().getGenericSuperclass();
 		Type[] generics = ((ParameterizedType) superType).getActualTypeArguments();
 		this.clazz = (Class<RESPONSE>) generics[0];
-//		this.httpService = SpringContextUtil.getBean("httpService", HttpService.class);
-		this.httpService = new HttpService();
+		this.httpService = SpringContextUtil.getBean("httpService", HttpService.class);
+//		this.httpService = new HttpService();
 		httpService.init();
 	}
 

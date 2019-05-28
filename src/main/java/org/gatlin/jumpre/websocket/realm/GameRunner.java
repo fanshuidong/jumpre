@@ -15,6 +15,10 @@ public enum GameRunner {
 		queue.push(uid);
 	}
 	
+	public synchronized void remove(String uid) {
+		queue.remove(uid);
+	}
+	
 	public synchronized void match() {
 		while (queue.size() >= 2) {
 			Room room = new Room(queue.poll(), queue.poll());

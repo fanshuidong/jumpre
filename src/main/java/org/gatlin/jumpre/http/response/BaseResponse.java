@@ -6,33 +6,33 @@ public class BaseResponse implements HttpResponse {
 
 	private static final long serialVersionUID = -8036207201605645667L;
 
-	private String code;
-	private String desc;
+	private String returnFlag;
+	private String returnText;
 
-	public String getCode() {
-		return code;
+	public String getReturnFlag() {
+		return returnFlag;
 	}
 
-	public void setCode(String code) {
-		this.code = code;
+	public void setReturnFlag(String returnFlag) {
+		this.returnFlag = returnFlag;
 	}
 
-	public String getDesc() {
-		return desc;
+	public String getReturnText() {
+		return returnText;
 	}
 
-	public void setDesc(String desc) {
-		this.desc = desc;
+	public void setReturnText(String returnText) {
+		this.returnText = returnText;
 	}
 
 	@Override
 	public String code() {
-		return code;
+		return returnFlag;
 	}
 
 	@Override
 	public String desc() {
-		return desc;
+		return returnText;
 	}
 
 	@Override

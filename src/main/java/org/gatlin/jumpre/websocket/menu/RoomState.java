@@ -2,8 +2,9 @@ package org.gatlin.jumpre.websocket.menu;
 
 public enum RoomState {
 
-	matching(1, "比赛"), 
-	finish(2, "结束"); 
+	ready(1, "匹配到开始准备阶段"), 
+	run(1, "比赛中"), 
+	finish(2, "比赛结束"); 
 	private int mark;
 	private String desc;
 
