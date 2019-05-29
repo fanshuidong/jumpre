@@ -184,6 +184,7 @@
 
 	<build>
 		<finalName>jumper</finalName>
+
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -192,27 +193,74 @@
 					<fork>true</fork>
 				</configuration>
 			</plugin>
+		</plugins>
+
+		<!-- <resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>**/*.properties</include>
+					<include>**/*.xml</include>
+					<include>**/*.keystore</include>
+				</includes>
+				<targetPath>${project.build.directory}/conf</targetPath>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>start.bat</include>
+				</includes>
+				<targetPath>${project.build.directory}</targetPath>
+			</resource>
+		</resources>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<encoding>${project.build.sourceEncoding}</encoding>
+				</configuration>
+			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
+				<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
-				<appendAssemblyId>false</appendAssemblyId>
-					<descriptors>
-						<descriptor>src/main/resources/config/package.xml</descriptor>
-					</descriptors>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<mainClass>org.gatlin.jumpre.SpringBoot</mainClass>
+						</manifest>
+						<manifestEntries>
+							<Class-Path>conf/</Class-Path>
+						</manifestEntries>
+					</archive>
+					<excludes>
+						<exclude>config/**</exclude>
+					</excludes>
 				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 
-		</plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin> 
+		</plugins>-->
 	</build>
 </project>

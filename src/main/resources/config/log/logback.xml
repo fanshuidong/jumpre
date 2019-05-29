@@ -8,10 +8,10 @@
 	</appender>
 
 	<appender name="root" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>/data/log/java/jumpre/web/root.log</File>
+		<File>D:/jumpre/root.log</File>
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<!-- rollover daily -->
-			<fileNamePattern>/data/log/java/jumpre/%d{yyyy-MM-dd}/root-%d{yyyy-MM-dd}-%i.log.gz</fileNamePattern>
+			<fileNamePattern>D:/jumpre/%d{yyyy-MM-dd}/root-%d{yyyy-MM-dd}-%i.log.gz</fileNamePattern>
 			<!-- 单个日志文件最多 100MB, 60天的日志周期，最大不能超过20GB -->
 			<maxFileSize>100MB</maxFileSize>
 			<maxHistory>60</maxHistory>

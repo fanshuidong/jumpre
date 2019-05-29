@@ -3,7 +3,7 @@ package org.gatlin.jumpre.http.request;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.gatlin.jumpre.Config;
+import org.gatlin.jumpre.JumperConfig;
 import org.gatlin.jumpre.http.response.BaseResponse;
 import org.gatlin.jumpre.util.SerializeUtil;
 import org.gatlin.jumpre.util.menu.ContentType;
@@ -13,7 +13,7 @@ import okhttp3.Response;
 public class GameStartRequest extends BaseRequest<BaseResponse, GameStartRequest> {
 
 	public GameStartRequest(Map<String, String> params) {
-		super(Config.gameStartUrl, ContentType.APPLICATION_JSON_UTF_8);
+		super(JumperConfig.gameStartUrl(), ContentType.APPLICATION_JSON_UTF_8);
 		this.params = params;
 	}
 	

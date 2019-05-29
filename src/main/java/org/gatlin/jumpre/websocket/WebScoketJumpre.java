@@ -17,7 +17,8 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
-import org.gatlin.jumpre.Config;
+import org.gatlin.jumpre.JumperConfig;
+import org.gatlin.jumpre.util.SpringContextUtil;
 import org.gatlin.jumpre.websocket.menu.LoseReason;
 import org.gatlin.jumpre.websocket.menu.MsgState;
 import org.gatlin.jumpre.websocket.menu.RoomState;
@@ -53,7 +54,7 @@ public class WebScoketJumpre {
 	private Player player;
 
 	static {
-		System.out.println(Config.appType);
+		System.out.println(JumperConfig.appType());
 		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> GameRunner.INSTANCE.match(), 0, 2,
 				TimeUnit.SECONDS);
 	}

@@ -3,7 +3,7 @@ package org.gatlin.jumpre.websocket.realm;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.gatlin.jumpre.Config;
+import org.gatlin.jumpre.JumperConfig;
 import org.gatlin.jumpre.http.request.GameEndRequest;
 import org.gatlin.jumpre.http.request.GameStartRequest;
 import org.gatlin.jumpre.util.DateUtil;
@@ -19,6 +19,7 @@ import org.gatlin.jumpre.websocket.msg.ScopeMsg;
 import org.gatlin.jumpre.websocket.msg.StartMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.gson.Gson;
 
@@ -78,7 +79,7 @@ public class Room {
 						finish();
 					}, 60, TimeUnit.SECONDS);
 					//调用比赛开始接口
-					Room.httpStart(gameId, player1.getUserId(), player2.getUserId(), Config.appType, startTime);
+					Room.httpStart(gameId, player1.getUserId(), player2.getUserId(), JumperConfig.appType(), startTime);
 				}
 			}
 			break;
@@ -117,7 +118,7 @@ public class Room {
 			this.loseReason = LoseReason.normal;
 			logger.info("{} 玩家 {} 与  {} 比赛结束,失败原因：{}",endTime,player1.getUserId(),player2.getUserId(),loseReason.desc());
 			// 调用对方奖励结算接口
-			Room.httpEnd(gameId, player1.getUserId(),player1.getScope(), player2.getUserId(),player2.getScope(), Config.appType, endTime,loseReason.mark());
+			Room.httpEnd(gameId, player1.getUserId(),player1.getScope(), player2.getUserId(),player2.getScope(),JumperConfig.appType(), endTime,loseReason.mark());
 		}
 	}
 
@@ -141,7 +142,7 @@ public class Room {
 			this.loseReason = reason;
 			logger.info("{} 玩家 {} 主动退出比赛结束,失败原因：{}",endTime,player.getUserId(),loseReason.desc());
 			// 调用对方奖励结算接口
-			Room.httpEnd(gameId, player1.getUserId(),player1.getScope(), player2.getUserId(),player2.getScope(), Config.appType, endTime,loseReason.mark());
+			Room.httpEnd(gameId, player1.getUserId(),player1.getScope(), player2.getUserId(),player2.getScope(), JumperConfig.appType(), endTime,loseReason.mark());
 		}else {
 			player.close();
 		}
