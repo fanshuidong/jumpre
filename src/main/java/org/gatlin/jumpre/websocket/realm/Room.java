@@ -3,7 +3,6 @@ package org.gatlin.jumpre.websocket.realm;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.gatlin.jumpre.JumperConfig;
 import org.gatlin.jumpre.http.request.GameEndRequest;
 import org.gatlin.jumpre.http.request.GameStartRequest;
 import org.gatlin.jumpre.util.DateUtil;
@@ -19,7 +18,6 @@ import org.gatlin.jumpre.websocket.msg.ScopeMsg;
 import org.gatlin.jumpre.websocket.msg.StartMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.gson.Gson;
 
@@ -35,6 +33,7 @@ public class Room {
 	private String startTime;//开始时间
 	private String endTime;//结束时间
 	private String gameId = "";
+	private String winner="1000";//1000表示平局;
 
 	public Room(String player1Id, String player2Id) {
 		this.player1 = WebScoketJumpre.players.get(player1Id);
@@ -79,7 +78,9 @@ public class Room {
 						finish();
 					}, 60, TimeUnit.SECONDS);
 					//调用比赛开始接口
-					Room.httpStart(gameId, player1.getUserId(), player2.getUserId(), JumperConfig.appType(), startTime);
+					ExcutorUtil.excuter.execute(()->{
+						Room.httpStart(gameId, player1.getUserId(), player2.getUserId(), startTime);
+					});
 				}
 			}
 			break;
@@ -101,9 +102,11 @@ public class Room {
 			if (player1.getScope() > player2.getScope()) {
 				WebScoketJumpre.addSuc(player1.getUserId());// 添加连胜
 				WebScoketJumpre.succession.remove(player2.getUserId());
+				winner = player1.getUserId();
 			} else if (player1.getScope() < player2.getScope()) {
 				WebScoketJumpre.addSuc(player2.getUserId());// 添加连胜
 				WebScoketJumpre.succession.remove(player1.getUserId());
+				winner = player2.getUserId();
 			} else {
 				WebScoketJumpre.succession.remove(player1.getUserId());
 				WebScoketJumpre.succession.remove(player2.getUserId());
@@ -118,7 +121,8 @@ public class Room {
 			this.loseReason = LoseReason.normal;
 			logger.info("{} 玩家 {} 与  {} 比赛结束,失败原因：{}",endTime,player1.getUserId(),player2.getUserId(),loseReason.desc());
 			// 调用对方奖励结算接口
-			Room.httpEnd(gameId, player1.getUserId(),player1.getScope(), player2.getUserId(),player2.getScope(),JumperConfig.appType(), endTime,loseReason.mark());
+			Room.httpEnd(gameId, player1.getUserId(),player1.getScope(), 
+					player2.getUserId(),player2.getScope(), endTime,loseReason.mark(),winner);
 		}
 	}
 
@@ -137,24 +141,25 @@ public class Room {
 			player.send(new FinishMsg(player.getScope(), 0));
 			player.getRival().send(new FinishMsg(player.getRival().getScope(), 1,
 					WebScoketJumpre.getSuc(player.getRival().getUserId())));
-			player.close();
 			this.endTime = DateUtil.getDate(DateUtil.YYYY_MM_DD_HH_MM_SS_SSS);
 			this.loseReason = reason;
 			logger.info("{} 玩家 {} 主动退出比赛结束,失败原因：{}",endTime,player.getUserId(),loseReason.desc());
 			// 调用对方奖励结算接口
-			Room.httpEnd(gameId, player1.getUserId(),player1.getScope(), player2.getUserId(),player2.getScope(), JumperConfig.appType(), endTime,loseReason.mark());
+			Room.httpEnd(gameId, player1.getUserId(),player1.getScope(), player2.getUserId(),
+					player2.getScope(), endTime,loseReason.mark(),player.getMatchUserId());
+			player.close();
 		}else {
 			player.close();
 		}
 	}
 	
-	public static void httpStart(String gameId, String userIdA, String userIdB, String appType, String startTime) {
-		GameStartRequest.Builder builder = new GameStartRequest.Builder(gameId, userIdA,userIdB, appType, startTime);
+	public static void httpStart(String gameId, String userIdA, String userIdB, String startTime) {
+		GameStartRequest.Builder builder = new GameStartRequest.Builder(gameId, userIdA,userIdB, startTime);
 		builder.build().sync_();
 	}
 	
-	public static void httpEnd(String gameId, String userIdA,Integer scopeA, String userIdB,Integer scopeB, String appType, String endTime,int loseReason) {
-		GameEndRequest.Builder builder = new GameEndRequest.Builder(gameId, userIdA,scopeA,userIdB,scopeB, appType, endTime,loseReason);
+	public static void httpEnd(String gameId, String userIdA,Integer scopeA, String userIdB,Integer scopeB, String endTime,int loseReason,String winner) {
+		GameEndRequest.Builder builder = new GameEndRequest.Builder(gameId, userIdA,scopeA,userIdB,scopeB, endTime,loseReason,winner);
 		builder.build().sync_();
 	}
 

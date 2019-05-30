@@ -22,17 +22,20 @@
 				%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n
 			</pattern>
 		</encoder>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">  
+	        <level>INFO</level>  
+	    </filter>  
 	</appender>
-
-	<root level="info">
-		<if condition='"true".equals("true")'>
-			<then>
-				<appender-ref ref="console" />
-				<appender-ref ref="root" />
-			</then>
-			<else>
-				<appender-ref ref="root" />
-			</else>
-		</if>
+	
+	<root level="INFO">
+		<appender-ref ref="console" />
+		<appender-ref ref="root" />
 	</root>
+	
+	<logger name="org.gatlin.jumpre.websocket" additivity="false">
+		<level value="DEBUG"/>
+		<appender-ref ref="console" />
+		<appender-ref ref="root" />
+	</logger>
+	
 </configuration>

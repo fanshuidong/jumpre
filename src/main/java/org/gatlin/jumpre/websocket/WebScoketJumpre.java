@@ -17,8 +17,6 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
-import org.gatlin.jumpre.JumperConfig;
-import org.gatlin.jumpre.util.SpringContextUtil;
 import org.gatlin.jumpre.websocket.menu.LoseReason;
 import org.gatlin.jumpre.websocket.menu.MsgState;
 import org.gatlin.jumpre.websocket.menu.RoomState;
@@ -54,7 +52,6 @@ public class WebScoketJumpre {
 	private Player player;
 
 	static {
-		System.out.println(JumperConfig.appType());
 		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> GameRunner.INSTANCE.match(), 0, 2,
 				TimeUnit.SECONDS);
 	}
@@ -134,7 +131,7 @@ public class WebScoketJumpre {
 				return;
 			}
 //			if (state != MsgState.ping)
-				logger.info(userId + "发来消息：" + message);
+				logger.debug(userId + "发来消息：" + message);
 			switch (state) {
 			case ping:// 心跳包
 				player.setPushTime(System.currentTimeMillis()/1000);
@@ -142,12 +139,7 @@ public class WebScoketJumpre {
 				break;
 			case scope:// 比赛时时数据
 			case ready:// 玩家就绪
-				player.getRoom().action(state, message, player);
-				break;
 			case quit://
-				if (player.getRoom() != null)
-					player.getRoom().action(state, message, player);
-				break;
 			case finish:// 客户端发起结束连接命令
 				if (player.getRoom() != null)
 					player.getRoom().action(state, message, player);
@@ -159,6 +151,7 @@ public class WebScoketJumpre {
 				break;
 			}
 		} catch (Exception e) {
+			logger.info("异常消息：{}", message);
 			e.printStackTrace();
 		}
 	}

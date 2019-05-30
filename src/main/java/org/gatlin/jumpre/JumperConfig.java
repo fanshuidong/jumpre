@@ -8,17 +8,8 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "jumper")
 public class JumperConfig {
 	
-	private String appType;
 	private String gameStartUrl;
 	private String gameEndUrl;
-	
-	public String getAppType() {
-		return appType;
-	}
-
-	public void setAppType(String appType) {
-		this.appType = appType;
-	}
 
 	public String getGameStartUrl() {
 		return gameStartUrl;
@@ -39,10 +30,6 @@ public class JumperConfig {
 	public static JumperConfig instance() {
 		JumperConfig jumperConfig = (JumperConfig)SpringContextUtil.getBean("jumperConfig");
 		return jumperConfig;
-	}
-	
-	public static String appType() {
-		return instance().getAppType();
 	}
 	
 	public static String gameStartUrl() {

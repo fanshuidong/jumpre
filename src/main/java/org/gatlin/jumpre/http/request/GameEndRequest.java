@@ -12,14 +12,14 @@ import okhttp3.Response;
 
 public class GameEndRequest extends BaseRequest<BaseResponse, GameEndRequest> {
 
-	public GameEndRequest(Map<String, String> params) {
+	public GameEndRequest(Map<String, String> params,Body body) {
 		super(JumperConfig.gameEndUrl(), ContentType.APPLICATION_JSON_UTF_8);
 		this.params = params;
+		this.body = body;
 	}
 	
 	@Override
 	protected BaseResponse response(Response response) {
-		System.out.println(response.message());
 		return null;
 	}
 
@@ -27,15 +27,15 @@ public class GameEndRequest extends BaseRequest<BaseResponse, GameEndRequest> {
 
 		private static final long serialVersionUID = 3769116924795413764L;
 
-		public Builder(String gameId, String userIdA, int scoreA,String userIdB,int scoreB,String appType, String endTime,int loseReason) {
+		public Builder(String gameId, String userIdA, int scoreA,String userIdB,int scoreB, String endTime,int loseReason,String winner) {
 			this.gameId = gameId;
 			this.userIdA = userIdA;
 			this.scoreA = scoreA;
 			this.userIdB = userIdB;
 			this.scoreB = scoreB;
-			this.appType = appType;
 			this.endTime = endTime;
 			this.loseReason = loseReason;
+			this.winner = winner;
 		}
 
 		protected String gameId;
@@ -43,14 +43,14 @@ public class GameEndRequest extends BaseRequest<BaseResponse, GameEndRequest> {
 		protected int scoreA;
 		protected String userIdB;
 		protected int scoreB;
-		protected String appType;
 		protected String endTime;
 		protected int loseReason;
+		protected String winner;
 
 		@Override
 		public GameEndRequest build() {
 			Map<String, String> map = SerializeUtil.JSON.beanToMap(SerializeUtil.GSON_ANNO, this);
-			return new GameEndRequest(new TreeMap<String, String>(map));
+			return new GameEndRequest(new TreeMap<String, String>(map),this);
 		}
 
 	}

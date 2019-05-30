@@ -12,14 +12,14 @@ import okhttp3.Response;
 
 public class GameStartRequest extends BaseRequest<BaseResponse, GameStartRequest> {
 
-	public GameStartRequest(Map<String, String> params) {
+	public GameStartRequest(Map<String, String> params,Body body) {
 		super(JumperConfig.gameStartUrl(), ContentType.APPLICATION_JSON_UTF_8);
 		this.params = params;
+		this.body = body;
 	}
 	
 	@Override
 	protected BaseResponse response(Response response) {
-		System.out.println(response.message());
 		return null;
 	}
 
@@ -27,24 +27,22 @@ public class GameStartRequest extends BaseRequest<BaseResponse, GameStartRequest
 
 		private static final long serialVersionUID = 6301835650003998037L;
 
-		public Builder(String gameId, String userIdA, String userIdB, String appType, String startTime) {
+		public Builder(String gameId, String userIdA, String userIdB, String startTime) {
 			this.gameId = gameId;
 			this.userIdA = userIdA;
 			this.userIdB = userIdB;
-			this.appType = appType;
 			this.startTime = startTime;
 		}
 
 		protected String gameId;
 		protected String userIdA;
 		protected String userIdB;
-		protected String appType;
 		protected String startTime;
 
 		@Override
 		public GameStartRequest build() {
 			Map<String, String> map = SerializeUtil.JSON.beanToMap(SerializeUtil.GSON_ANNO, this);
-			return new GameStartRequest(new TreeMap<String, String>(map));
+			return new GameStartRequest(new TreeMap<String, String>(map),this);
 		}
 
 	}
