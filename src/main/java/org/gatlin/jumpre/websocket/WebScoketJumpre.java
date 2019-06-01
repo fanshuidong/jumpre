@@ -75,19 +75,8 @@ public class WebScoketJumpre {
 				e.printStackTrace();
 			}
 			if (player.isMatch() && null != player.getRoom()) {
-				// 重连进来 发送双方的比赛数据
-				if (player.getRoom().getState() == RoomState.run) {
-					Scope scope1 = new Scope(userId, player.getScope());
-					Scope scope2 = new Scope(player.getMatchUserId(), players.get(player.getMatchUserId()).getScope());
-					List<Scope> list = new ArrayList<>();
-					list.add(scope1);
-					list.add(scope2);
-					ResultMsg msg = new ResultMsg(list);
-					sendMessage(msg, session);
-				} else if (player.getRoom().getState() == RoomState.finish) {
-					player.send(new FinishMsg(player.getScope(), player.getScope() > player.getRival().getScope() ? 1
-							: player.getScope() < player.getRival().getScope() ? 0 : 2));
-				}
+				// 重连操作
+				player.getRoom().reConnect(player);
 			}else {
 				GameRunner.INSTANCE.push(userId);
 			}
@@ -161,15 +150,7 @@ public class WebScoketJumpre {
 		logger.info("Exception : userId = " + userId + " , throwable = " + throwable.toString() + "/"
 				+ throwable.getMessage());
 		if (player.getRoom() != null) {
-			if(player.getRoom().getState() == RoomState.run) {//正在比赛的玩家退出游戏 判输 对方赢
-				player.getRoom().finish_(player,LoseReason.exception);
-			}else if(player.getRoom().getState() == RoomState.ready){
-				if(player.getRival() != null)
-					player.getRival().send(new CancelMsg());
-				player.close();
-			}else {
-				player.close();
-			}
+			player.getRoom().finish_(player,LoseReason.exception);
 		}else {
 			GameRunner.INSTANCE.remove(userId);
 			player.close();

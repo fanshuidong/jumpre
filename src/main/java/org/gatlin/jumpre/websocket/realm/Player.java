@@ -9,7 +9,6 @@ import javax.websocket.Session;
 import org.gatlin.jumpre.util.ExcutorUtil;
 import org.gatlin.jumpre.websocket.WebScoketJumpre;
 import org.gatlin.jumpre.websocket.menu.LoseReason;
-import org.gatlin.jumpre.websocket.msg.CancelMsg;
 import org.gatlin.jumpre.websocket.msg.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,7 +158,7 @@ public class Player {
 			public void run() {
 				dif = (int) (System.currentTimeMillis() / 1000 - pushTime);
 				if (dif > 11) {
-//					timeOut();
+					timeOut();
 				}
 			}
 		}, 10, 10, TimeUnit.SECONDS);
@@ -168,25 +167,8 @@ public class Player {
 	//心跳超时处理
 	public synchronized void timeOut() {
 		if(room != null) {
-			switch (room.getState()) {
-			case ready://准备阶段 待处理
-				Player rival = getRival();
-				if(rival != null) {
-					rival.send(new CancelMsg());
-				}
-				close();
-				break;
-			case finish://比赛结束s
-				close();
-				break;
-			case run://比赛阶段判负
-				room.finish_(player(),LoseReason.timeOut);
-				break;
-			default:
-				WebScoketJumpre.succession.remove(userId);
-				close();
-				break;
-			}
+			room.finish_(player(),LoseReason.timeOut);
+			WebScoketJumpre.succession.remove(userId);
 		}else {
 			GameRunner.INSTANCE.remove(userId);
 			close();
