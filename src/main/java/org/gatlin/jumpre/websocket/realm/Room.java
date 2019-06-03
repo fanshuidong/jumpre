@@ -35,7 +35,8 @@ public class Room {
 	private Player player2;
 	private ScheduledFuture<?> endTask;
 	// private RoomState state;
-	private AtomicReference<RoomState> roomState = new AtomicReference<RoomState>(null);
+	private AtomicReference<RoomState> roomState = new AtomicReference<RoomState>(null);//房间状态
+	private AtomicReference<Boolean> isCalculate = new AtomicReference<Boolean>(false);//是否再计算得分中
 	private LoseReason loseReason;// 失败原因
 	private String startTime;// 开始时间
 	private String endTime;// 结束时间
@@ -63,12 +64,19 @@ public class Room {
 	public void action(MsgState state, String message, Player player) {
 		switch (state) {
 		case scope:// 比赛时时数据
-			if (RoomState.run == roomState.get()) {
-				ScopeMsg recevice = gson.fromJson(message, ScopeMsg.class);
-				player.setScope(player.getScope() + recevice.getScope());
-				recevice.setScope(player.getScope());
-				if (player.getRival() != null)
-					player.getRival().send(recevice);
+			try {
+				if (RoomState.run == roomState.get()) {
+					isCalculate.compareAndSet(false, true);
+					ScopeMsg recevice = gson.fromJson(message, ScopeMsg.class);
+					player.setScope(player.getScope() + recevice.getScope());
+					recevice.setScope(player.getScope());
+					if (player.getRival() != null)
+						player.getRival().send(recevice);
+				}
+			} catch (Exception e) {
+				logger.info(e.getMessage());
+			} finally {
+				isCalculate.set(false);
 			}
 			break;
 		case ready:// 玩家就绪
@@ -105,31 +113,32 @@ public class Room {
 	// 比赛时间到服务器发起正常结束
 	private void finish() {
 		if (roomState.compareAndSet(RoomState.run, RoomState.finish)) {
-			if (player1.getScope() > player2.getScope()) {
-				WebScoketJumpre.addSuc(player1.getUserId());// 添加连胜
-				WebScoketJumpre.succession.remove(player2.getUserId());
-				winner = player1.getUserId();
-			} else if (player1.getScope() < player2.getScope()) {
-				WebScoketJumpre.addSuc(player2.getUserId());// 添加连胜
-				WebScoketJumpre.succession.remove(player1.getUserId());
-				winner = player2.getUserId();
-			} else {
-				WebScoketJumpre.succession.remove(player1.getUserId());
-				WebScoketJumpre.succession.remove(player2.getUserId());
+			while(!isCalculate.get()) {
+				int scope1 = player1.getScope();
+				int scope2 = player2.getScope();
+				String userId1 = player1.getUserId();
+				String userId2 = player2.getUserId();
+				if (scope1 > scope2) {
+					WebScoketJumpre.addSuc(userId1);// 添加连胜
+					WebScoketJumpre.succession.remove(userId2);
+					winner = userId1;
+				} else if (scope1 < scope2) {
+					WebScoketJumpre.addSuc(userId2);// 添加连胜
+					WebScoketJumpre.succession.remove(userId1);
+					winner = userId2;
+				} else {
+					WebScoketJumpre.succession.remove(userId1);
+					WebScoketJumpre.succession.remove(userId2);
+				}
+				player1.send(new FinishMsg(scope1,scope1 > scope2 ? 1 : scope1 < scope2 ? 0 : 2,WebScoketJumpre.getSuc(userId1)));
+				player2.send(new FinishMsg(scope2,scope2 > scope1 ? 1 : scope2 < scope1 ? 0 : 2,WebScoketJumpre.getSuc(userId2)));
+				this.endTime = DateUtil.getDate(DateUtil.YYYY_MM_DD_HH_MM_SS);
+				this.loseReason = LoseReason.normal;
+				logger.info("{} 玩家 {} 与  {} 比赛结束,失败原因：{}", endTime, userId1, userId2,loseReason.desc());
+				// 调用对方奖励结算接口
+				Room.httpEnd(gameId, userId1, scope1, userId2, scope2,endTime, loseReason.mark(), winner);
+				break;
 			}
-			player1.send(new FinishMsg(player1.getScope(),
-					player1.getScope() > player2.getScope() ? 1 : player1.getScope() < player2.getScope() ? 0 : 2,
-					WebScoketJumpre.getSuc(player1.getUserId())));
-			player2.send(new FinishMsg(player2.getScope(),
-					player2.getScope() > player1.getScope() ? 1 : player2.getScope() < player1.getScope() ? 0 : 2,
-					WebScoketJumpre.getSuc(player2.getUserId())));
-			this.endTime = DateUtil.getDate(DateUtil.YYYY_MM_DD_HH_MM_SS);
-			this.loseReason = LoseReason.normal;
-			logger.info("{} 玩家 {} 与  {} 比赛结束,失败原因：{}", endTime, player1.getUserId(), player2.getUserId(),
-					loseReason.desc());
-			// 调用对方奖励结算接口
-			Room.httpEnd(gameId, player1.getUserId(), player1.getScope(), player2.getUserId(), player2.getScope(),
-					endTime, loseReason.mark(), winner);
 		}
 		// if (state == RoomState.run) {
 		// state = RoomState.finish;
@@ -174,18 +183,19 @@ public class Room {
 	public void finish_(Player player, LoseReason reason) {
 		if (roomState.compareAndSet(RoomState.run, RoomState.finish)) {
 			endTask.cancel(false);
-			WebScoketJumpre.addSuc(player.getRival().getUserId());// 添加连胜
+			Player winner = player.getRival();//对手获胜
+			WebScoketJumpre.addSuc(winner.getUserId());// 添加连胜
 			WebScoketJumpre.succession.remove(player.getUserId());
 			player.send(new FinishMsg(player.getScope(), 0));
-			player.getRival().send(new FinishMsg(player.getRival().getScope(), 1,
-					WebScoketJumpre.getSuc(player.getRival().getUserId())));
+			winner.send(new FinishMsg(winner.getScope(), 1,
+					WebScoketJumpre.getSuc(winner.getUserId())));
 			this.endTime = DateUtil.getDate(DateUtil.YYYY_MM_DD_HH_MM_SS_SSS);
 			this.loseReason = reason;
 			logger.info("{} 玩家 {} 主动退出比赛结束,失败原因：{}", endTime, player.getUserId(), loseReason.desc());
+			player.close();
 			// 调用对方奖励结算接口
 			Room.httpEnd(gameId, player1.getUserId(), player1.getScope(), player2.getUserId(), player2.getScope(),
-					endTime, loseReason.mark(), player.getMatchUserId());
-			player.close();
+					endTime, loseReason.mark(), winner.getUserId());
 		} else if (roomState.compareAndSet(RoomState.ready, null)) {
 			if (player.getRival() != null)
 				player.getRival().send(new CancelMsg());
