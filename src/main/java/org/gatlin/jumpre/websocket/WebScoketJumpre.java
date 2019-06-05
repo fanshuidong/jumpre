@@ -1,5 +1,6 @@
 package org.gatlin.jumpre.websocket;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +67,7 @@ public class WebScoketJumpre {
 		if (players.containsKey(userId)) {
 			this.player = players.get(userId);
 			try {
-				if (player.getSession().isOpen())
+				if (player.getSession().isOpen()) 
 					player.getSession().close();// 重连关闭原先的链接
 				this.player.setSession(session);
 				player.closePing();
@@ -93,9 +94,10 @@ public class WebScoketJumpre {
 	 * 连接关闭调用的方法
 	 * 
 	 * @param closeSession
+	 * @throws IOException 
 	 */
 	@OnClose
-	public void onClose(@PathParam("userId") String userId, Session session) {
+	public void onClose(@PathParam("userId") String userId, Session session) throws IOException {
 		GameRunner.INSTANCE.remove(userId);
 		logger.info("玩家" + userId + "离开，当前在线人数为：" + subOnlineCount());
 	}
@@ -149,6 +151,11 @@ public class WebScoketJumpre {
 	public void onError(@PathParam("userId") String userId, Throwable throwable, Session session) {
 		logger.info("Exception : userId = " + userId + " , throwable = " + throwable.toString() + "/"
 				+ throwable.getMessage());
+//		throwable.printStackTrace();
+		if(throwable instanceof EOFException) {
+//			System.out.println(session.isOpen());
+			return;
+		}
 		if (player.getRoom() != null) {
 			player.getRoom().finish_(player,LoseReason.exception);
 		}else {

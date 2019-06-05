@@ -158,7 +158,7 @@ public class Player {
 			public void run() {
 				dif = (int) (System.currentTimeMillis() / 1000 - pushTime);
 				if (dif > 11) {
-//					timeOut();
+					timeOut();
 				}
 			}
 		}, 10, 10, TimeUnit.SECONDS);

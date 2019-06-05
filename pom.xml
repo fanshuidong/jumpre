@@ -185,7 +185,7 @@
 	<build>
 		<finalName>jumper</finalName>
 
-		<plugins>
+		<!-- <plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -193,9 +193,9 @@
 					<fork>true</fork>
 				</configuration>
 			</plugin>
-		</plugins>
+		</plugins> -->
 
-		<!-- <resources>
+		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
 				<includes>
@@ -261,6 +261,6 @@
 					</execution>
 				</executions>
 			</plugin> 
-		</plugins> -->
+		</plugins>
 	</build>
 </project>
