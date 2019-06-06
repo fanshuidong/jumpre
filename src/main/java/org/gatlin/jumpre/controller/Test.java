@@ -11,6 +11,6 @@ public class Test {
 	@ResponseBody
 	@RequestMapping("/test")
 	public Object test() {
-		return null;
+		return "success";
 	}
 }

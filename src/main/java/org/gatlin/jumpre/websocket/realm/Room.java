@@ -6,6 +6,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.websocket.Session;
+
 import org.gatlin.jumpre.http.request.GameEndRequest;
 import org.gatlin.jumpre.http.request.GameStartRequest;
 import org.gatlin.jumpre.util.DateUtil;
@@ -59,6 +61,7 @@ public class Room {
 		player2.setRoom(this);
 		// this.state = RoomState.ready;
 		roomState.set(RoomState.ready);
+		logger.info("玩家 {} 与 {} 成功匹配",player1.getUserId(),player2.getUserId());
 	}
 
 	public void action(MsgState state, String message, Player player) {
@@ -239,6 +242,10 @@ public class Room {
 
 	// 房间重连
 	public void reConnect(Player player) {
+		if (roomState.get() == RoomState.ready) {
+			player.quitRoom();
+			GameRunner.INSTANCE.push(player.getUserId());
+		}
 		if (roomState.get() == RoomState.run) {
 			Scope scope1 = new Scope(player.getUserId(), player.getScope());
 			Scope scope2 = new Scope(player.getMatchUserId(), player.getRival().getScope());
@@ -251,6 +258,29 @@ public class Room {
 					: player.getScope() < player.getRival().getScope() ? 0 : 2));
 		}
 
+	}
+	
+	/**
+	 * 匹配成功且没开始前有玩家断线 解散房间
+	 * @param player 断线玩家
+	 */
+	public synchronized void dissolve(Player player) {
+		if(roomState.get() == RoomState.ready) {
+			try {
+				Player to = player.getRival();
+				if(to != null) {
+					to.quitRoom();
+					if(WebScoketJumpre.players.containsKey(to.getUserId())) {
+						GameRunner.INSTANCE.push(to.getUserId());
+						to.send(new CancelMsg());
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				player.quitRoom();
+			}
+		}
 	}
 
 	public Player getPlayer1() {

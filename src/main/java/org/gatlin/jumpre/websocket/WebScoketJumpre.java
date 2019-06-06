@@ -1,9 +1,6 @@
 package org.gatlin.jumpre.websocket;
 
-import java.io.EOFException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -18,15 +15,9 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
-import org.gatlin.jumpre.websocket.menu.LoseReason;
 import org.gatlin.jumpre.websocket.menu.MsgState;
-import org.gatlin.jumpre.websocket.menu.RoomState;
-import org.gatlin.jumpre.websocket.msg.CancelMsg;
-import org.gatlin.jumpre.websocket.msg.FinishMsg;
 import org.gatlin.jumpre.websocket.msg.Message;
 import org.gatlin.jumpre.websocket.msg.PingMsg;
-import org.gatlin.jumpre.websocket.msg.ResultMsg;
-import org.gatlin.jumpre.websocket.msg.Scope;
 import org.gatlin.jumpre.websocket.realm.GameRunner;
 import org.gatlin.jumpre.websocket.realm.Player;
 import org.slf4j.Logger;
@@ -99,6 +90,10 @@ public class WebScoketJumpre {
 	@OnClose
 	public void onClose(@PathParam("userId") String userId, Session session) throws IOException {
 		GameRunner.INSTANCE.remove(userId);
+		Player player = players.get(userId);
+		if(player!=null && player.getRoom()!=null) {
+			player.getRoom().dissolve(player);
+		}
 		logger.info("玩家" + userId + "离开，当前在线人数为：" + subOnlineCount());
 	}
 
@@ -122,7 +117,7 @@ public class WebScoketJumpre {
 				return;
 			}
 //			if (state != MsgState.ping)
-				logger.debug(userId + "发来消息：" + message);
+//				logger.debug(userId + "发来消息：" + message);
 			switch (state) {
 			case ping:// 心跳包
 				player.setPushTime(System.currentTimeMillis()/1000);
@@ -152,16 +147,16 @@ public class WebScoketJumpre {
 		logger.info("Exception : userId = " + userId + " , throwable = " + throwable.toString() + "/"
 				+ throwable.getMessage());
 //		throwable.printStackTrace();
-		if(throwable instanceof EOFException) {
+//		if(throwable instanceof EOFException) {
 //			System.out.println(session.isOpen());
-			return;
-		}
-		if (player.getRoom() != null) {
-			player.getRoom().finish_(player,LoseReason.exception);
-		}else {
-			GameRunner.INSTANCE.remove(userId);
-			player.close();
-		}
+//			return;
+//		}
+//		if (player.getRoom() != null) {
+//			player.getRoom().finish_(player,LoseReason.exception);
+//		}else {
+//			GameRunner.INSTANCE.remove(userId);
+//			player.close();
+//		}
 	}
 
 	public static void sendMessage(Message message, Session session) {

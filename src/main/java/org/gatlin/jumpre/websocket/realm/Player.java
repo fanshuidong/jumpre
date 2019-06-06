@@ -144,6 +144,13 @@ public class Player {
 		}
 	}
 	
+	public void quitRoom() {
+		this.room = null;
+		this.matchUserId=null;
+		this.isMatch = false;
+		this.isReady = false;
+	}
+	
 	public void closePing() {
 		this.pingTask.cancel(false);
 	}
