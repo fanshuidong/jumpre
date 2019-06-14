@@ -1,2 +1,2 @@
 @echo start
-java -jar jumper.jar
+java -Xms2048m -Xmx2048m  -jar jumper.jar
