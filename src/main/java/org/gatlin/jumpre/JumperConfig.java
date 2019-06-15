@@ -10,6 +10,7 @@ public class JumperConfig {
 	
 	private String gameStartUrl;
 	private String gameEndUrl;
+	private String userScoreQueryUrl;
 
 	public String getGameStartUrl() {
 		return gameStartUrl;
@@ -27,6 +28,14 @@ public class JumperConfig {
 		this.gameEndUrl = gameEndUrl;
 	}
 	
+	public String getUserScoreQueryUrl() {
+		return userScoreQueryUrl;
+	}
+
+	public void setUserScoreQueryUrl(String userScoreQueryUrl) {
+		this.userScoreQueryUrl = userScoreQueryUrl;
+	}
+
 	public static JumperConfig instance() {
 		JumperConfig jumperConfig = (JumperConfig)SpringContextUtil.getBean("jumperConfig");
 		return jumperConfig;
@@ -38,6 +47,10 @@ public class JumperConfig {
 	
 	public static String gameEndUrl() {
 		return instance().getGameEndUrl();
+	}
+	
+	public static String userScoreQueryUrl() {
+		return instance().getUserScoreQueryUrl();
 	}
 
 }

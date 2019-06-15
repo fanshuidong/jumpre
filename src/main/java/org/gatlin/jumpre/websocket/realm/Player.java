@@ -6,9 +6,12 @@ import java.util.concurrent.TimeUnit;
 
 import javax.websocket.Session;
 
+import org.gatlin.jumpre.http.request.PlayerScopeRequest;
+import org.gatlin.jumpre.http.response.BaseResponse;
 import org.gatlin.jumpre.util.ExcutorUtil;
 import org.gatlin.jumpre.websocket.WebScoketJumpre;
 import org.gatlin.jumpre.websocket.menu.LoseReason;
+import org.gatlin.jumpre.websocket.menu.QueueType;
 import org.gatlin.jumpre.websocket.msg.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +29,7 @@ public class Player {
 		this.session = session;
 		this.userId = userId;
 		pushTime = System.currentTimeMillis() / 1000;
+		initAverageScope();
 		startPing();
 	}
 	
@@ -43,6 +47,7 @@ public class Player {
 	private boolean isReady;
 	private String matchUserId;// 匹配对手
 	private Room room;
+	private int averageScope;//最近 3场 平均分
 
 	public Player getBySession(Session session) {
 		return session.equals(this.session) ? this : null;
@@ -116,6 +121,14 @@ public class Player {
 		this.room = room;
 	}
 
+	public int getAverageScope() {
+		return averageScope;
+	}
+
+	public void setAverageScope(int averageScope) {
+		this.averageScope = averageScope;
+	}
+
 	public void send(Message message) {
 		try {
 			if(session.isOpen())
@@ -139,6 +152,7 @@ public class Player {
 			this.matchUserId=null;
 			this.isMatch = false;
 			this.isReady = false;
+			this.averageScope = -1;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -165,7 +179,7 @@ public class Player {
 			public void run() {
 				dif = (int) (System.currentTimeMillis() / 1000 - pushTime);
 				if (dif > 11) {
-					timeOut();
+//					timeOut();
 				}
 			}
 		}, 10, 10, TimeUnit.SECONDS);
@@ -181,6 +195,28 @@ public class Player {
 			close();
 		}
 		logger.info("用户 {} 长时间未操作断开连接",userId);
+	}
+	
+	public void initAverageScope() {
+		try {
+			PlayerScopeRequest.Builder builder = new PlayerScopeRequest.Builder(this.userId);
+			BaseResponse response =  builder.build().sync_();
+			if(response!=null) {
+				if(response.getReturnFlag().equals("100") && this.userId.equals(response.getUserID())) {
+					System.out.println(averageScope);
+					averageScope =  response.getAvgScore();
+				}else {
+					averageScope = 0;
+				}
+			}
+		} catch (Exception e) {
+			averageScope = 0;
+			e.printStackTrace();
+		} 
+	}
+	
+	public QueueType getQueue() {
+		return QueueType.match(averageScope);
 	}
 
 }

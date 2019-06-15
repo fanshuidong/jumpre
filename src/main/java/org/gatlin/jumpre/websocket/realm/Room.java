@@ -6,8 +6,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.websocket.Session;
-
 import org.gatlin.jumpre.http.request.GameEndRequest;
 import org.gatlin.jumpre.http.request.GameStartRequest;
 import org.gatlin.jumpre.util.DateUtil;
@@ -244,7 +242,7 @@ public class Room {
 	public void reConnect(Player player) {
 		if (roomState.get() == RoomState.ready) {
 			player.quitRoom();
-			GameRunner.INSTANCE.push(player.getUserId());
+			GameRunner.INSTANCE.push(player.getUserId(),player.getQueue());
 		}
 		if (roomState.get() == RoomState.run) {
 			Scope scope1 = new Scope(player.getUserId(), player.getScope());
@@ -271,7 +269,7 @@ public class Room {
 				if(to != null) {
 					to.quitRoom();
 					if(WebScoketJumpre.players.containsKey(to.getUserId())) {
-						GameRunner.INSTANCE.push(to.getUserId());
+						GameRunner.INSTANCE.push(to.getUserId(),to.getQueue());
 						to.send(new CancelMsg());
 					}
 				}

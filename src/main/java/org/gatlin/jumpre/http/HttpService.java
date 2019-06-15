@@ -21,9 +21,9 @@ public class HttpService {
 	@PostConstruct
 	public void init() {
 		this.client = new OkHttpClient.Builder()
-				.readTimeout(300, TimeUnit.SECONDS)
-				.writeTimeout(300, TimeUnit.SECONDS)
-				.connectTimeout(60, TimeUnit.SECONDS).build();
+				.readTimeout(5, TimeUnit.SECONDS)
+				.writeTimeout(5, TimeUnit.SECONDS)
+				.connectTimeout(5, TimeUnit.SECONDS).build();
 	}
 	
 	public void requestAsync(Request request, Callback callback) throws RequestFailException {

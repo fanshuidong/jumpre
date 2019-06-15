@@ -70,13 +70,13 @@ public class WebScoketJumpre {
 				// 重连操作
 				player.getRoom().reConnect(player);
 			}else {
-				GameRunner.INSTANCE.push(userId);
+				GameRunner.INSTANCE.push(userId,player.getQueue());
 			}
 			logger.info("用户：" + userId + "重连成功,当前在线人数为：" + addOnlineCount());
 		} else {
 			this.player = new Player(session, userId);
 			players.put(userId, player); // 添加到map中
-			GameRunner.INSTANCE.push(userId);
+			GameRunner.INSTANCE.push(userId,player.getQueue());
 			logger.info("玩家" + userId + "加入，当前在线人数为：" + addOnlineCount());
 		}
 	}

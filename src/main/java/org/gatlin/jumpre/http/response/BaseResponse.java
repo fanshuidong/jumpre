@@ -8,6 +8,8 @@ public class BaseResponse implements HttpResponse {
 
 	private String returnFlag;
 	private String returnText;
+	private int avgScore;
+	private String userID;
 
 	public String getReturnFlag() {
 		return returnFlag;
@@ -23,6 +25,26 @@ public class BaseResponse implements HttpResponse {
 
 	public void setReturnText(String returnText) {
 		this.returnText = returnText;
+	}
+
+	public int getAvgScore() {
+		return avgScore;
+	}
+
+	public void setAvgScore(int avgScore) {
+		this.avgScore = avgScore;
+	}
+
+	public String getUserID() {
+		return userID;
+	}
+
+	public void setUserID(String userID) {
+		this.userID = userID;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 	@Override

@@ -3,8 +3,6 @@ package org.gatlin.jumpre.websocket.config;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
-import org.apache.tomcat.util.descriptor.web.SecurityCollection;
-import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
 import org.apache.tomcat.websocket.server.WsSci;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,15 +27,15 @@ public class TomcatConfiguration {
 	@Bean
 	public TomcatServletWebServerFactory servletContainer() {
 		TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory() {
-            @Override
-            protected void postProcessContext(Context context) {
-                SecurityConstraint constraint = new SecurityConstraint();
-                constraint.setUserConstraint("CONFIDENTIAL");
-                SecurityCollection collection = new SecurityCollection();
-                collection.addPattern("/*");
-                constraint.addCollection(collection);
-                context.addConstraint(constraint);
-            }
+//            @Override
+//            protected void postProcessContext(Context context) {
+//                SecurityConstraint constraint = new SecurityConstraint();
+//                constraint.setUserConstraint("CONFIDENTIAL");
+//                SecurityCollection collection = new SecurityCollection();
+//                collection.addPattern("/*");
+//                constraint.addCollection(collection);
+//                context.addConstraint(constraint);
+//            }
         };
         tomcat.addAdditionalTomcatConnectors(createSslConnector());
 		return tomcat;
