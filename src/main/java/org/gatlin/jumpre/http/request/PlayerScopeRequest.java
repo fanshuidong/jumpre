@@ -1,9 +1,11 @@
 package org.gatlin.jumpre.http.request;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.gatlin.jumpre.JumperConfig;
+import org.gatlin.jumpre.http.exception.RequestFailException;
 import org.gatlin.jumpre.http.response.BaseResponse;
 import org.gatlin.jumpre.util.SerializeUtil;
 import org.gatlin.jumpre.util.menu.ContentType;
@@ -20,7 +22,13 @@ public class PlayerScopeRequest extends BaseRequest<BaseResponse, PlayerScopeReq
 	
 	@Override
 	protected BaseResponse response(Response response) {
-		return null;
+		try {
+			BaseResponse resp = SerializeUtil.GSON.fromJson(response.body().string(), clazz);
+			resp.verify();
+			return resp;
+		} catch (IOException e) {
+			throw new RequestFailException(e);
+		}
 	}
 
 	public static class Builder extends BaseRequest.Builder<PlayerScopeRequest, Builder> {

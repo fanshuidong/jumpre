@@ -179,7 +179,7 @@ public class Player {
 			public void run() {
 				dif = (int) (System.currentTimeMillis() / 1000 - pushTime);
 				if (dif > 11) {
-//					timeOut();
+					timeOut();
 				}
 			}
 		}, 10, 10, TimeUnit.SECONDS);
@@ -203,8 +203,8 @@ public class Player {
 			BaseResponse response =  builder.build().sync_();
 			if(response!=null) {
 				if(response.getReturnFlag().equals("100") && this.userId.equals(response.getUserID())) {
-					System.out.println(averageScope);
 					averageScope =  response.getAvgScore();
+					logger.info("用户 {} 最近5场平均分：{}",response.getUserID(),averageScope);
 				}else {
 					averageScope = 0;
 				}
