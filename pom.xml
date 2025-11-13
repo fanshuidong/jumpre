@@ -26,7 +26,7 @@
 		<maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
 		<maven-surefire-plugin.version>2.21.0</maven-surefire-plugin.version>
 		<spring.version>5.1.7.RELEASE</spring.version>
-		<okhttp.version>3.9.1</okhttp.version>
+		<okhttp.version>4.9.2</okhttp.version>
 		<servlet.version>3.1.0</servlet.version>
 		<junit.version>4.12</junit.version>
 		<java-websocket.version>1.4.0</java-websocket.version>
